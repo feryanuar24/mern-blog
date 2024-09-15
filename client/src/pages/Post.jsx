@@ -17,13 +17,16 @@ const Post = () => {
     } else {
       const token = localStorage.getItem("token");
       try {
-        const response = await fetch(`http://localhost:5000/posts/${id}`, {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await fetch(
+          `https://mern-blog-server-chi.vercel.app/api/posts/${id}`,
+          {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
         if (!response.ok) {
           console.error("Failed to delete post:", response.statusText);
