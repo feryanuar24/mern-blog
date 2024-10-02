@@ -1,15 +1,22 @@
-import React, { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import Button from "../../components/UI/Button";
+import { GetPostsAPI } from "../../api";
 
 const Home = () => {
   const navigate = useNavigate();
 
   const [posts, setPosts] = useState([]);
   const [profile, setProfile] = useState(false);
+  const [processing, setProcessing] = useState(false);
 
   const username = localStorage.getItem("username");
   const email = localStorage.getItem("email");
   const token = localStorage.getItem("token");
+
+  const handleRegister = useCallback(() => {
+    navigate("/register");
+  }, [navigate]);
 
   const handleLogout = useCallback(() => {
     localStorage.removeItem("username");
@@ -20,17 +27,10 @@ const Home = () => {
 
   useEffect(() => {
     const fetchPosts = async () => {
+      setProcessing(true);
+
       try {
-        const response = await fetch(
-          "https://mern-blog-server-chi.vercel.app/api/posts",
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const response = await GetPostsAPI(token);
 
         if (!response.ok) {
           handleLogout();
@@ -40,7 +40,10 @@ const Home = () => {
         const data = await response.json();
         setPosts(data);
       } catch (error) {
+        alert("Failed to fetch posts:", error);
         console.error("Failed to fetch posts:", error);
+      } finally {
+        setProcessing(false);
       }
     };
 
@@ -48,20 +51,22 @@ const Home = () => {
   }, [token, handleLogout]);
 
   return (
-    <>
-      <div className="divide-y divide-gray-200 dark:divide-gray-700 bg-gray-900 p-10">
+    <div className="relative">
+      <div
+        className={`${
+          processing && "h-screen blur-sm"
+        } divide-y divide-gray-200 dark:divide-gray-700 bg-gray-900 p-10`}
+      >
         <div className="space-y-2 pb-8 pt-6 md:space-y-5 flex justify-between">
           <div className="space-y-8">
             <h1 className="text-3xl font-extrabold leading-9 tracking-tight text-gray-900 dark:text-gray-100 sm:text-4xl sm:leading-10 md:text-6xl md:leading-14">
               Latest
             </h1>
-            <p className="text-lg leading-7 text-gray-500 dark:text-gray-400">
+            <p className="text-lg leading-7 text-gray-500 dark:text-gray-400 pb-5">
               A blog created with MERN Stack
             </p>
             <Link to={"/create-post"}>
-              <div className="w-40 mt-8 py-3 text-base font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 hover:scale-105 hover:-translate-x-1 transition-all duration-300 ease-in-out delay-150 hover:cursor-pointer">
-                Create post
-              </div>
+              <Button processing={false} text={"Create Post"} />
             </Link>
           </div>
           <div className="flex flex-col items-end justify-start">
@@ -101,6 +106,12 @@ const Home = () => {
                   >
                     {email}
                   </p>
+                </div>
+                <div
+                  className="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white hover:cursor-pointer hover:rounded-b transition-colors duration-300 ease-in-out delay-150"
+                  onClick={handleRegister}
+                >
+                  <button>Add New Accout</button>
                 </div>
                 <div
                   className="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white hover:cursor-pointer hover:rounded-b transition-colors duration-300 ease-in-out delay-150"
@@ -167,7 +178,12 @@ const Home = () => {
           })}
         </ul>
       </div>
-    </>
+      {processing && (
+        <div className="absolute inset-0 m-auto w-32 h-32">
+          <Button processing={true} text={"Loading..."} />
+        </div>
+      )}
+    </div>
   );
 };
 

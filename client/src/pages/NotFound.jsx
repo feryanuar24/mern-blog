@@ -1,12 +1,12 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import notFound from "../404.svg";
+import NotFoundIMG from "../assets/404.svg";
 
 const NotFound = () => {
   return (
     <div className="flex flex-col justify-center items-center px-6 mx-auto h-[800] xl:px-0 dark:bg-gray-900">
       <div className="block md:max-w-lg">
-        <img src={notFound} alt="astronaut" />
+        <img src={NotFoundIMG} alt="astronaut" />
       </div>
       <div className="text-center xl:max-w-4xl">
         <h1 className="mb-3 text-2xl font-bold leading-tight text-gray-900 sm:text-4xl lg:text-5xl dark:text-white">
